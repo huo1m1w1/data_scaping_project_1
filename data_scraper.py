@@ -6,6 +6,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
+import uuid
+
 # import urllib
 
 # import urllib.request
@@ -29,7 +31,15 @@ import pandas as pd
 
 
 class nft_scraper:
+    """
+    Collect NFT data based on ranking.
+    """
+
     def __init__(self):
+
+        """
+        Initialise the NFT collections' table.
+        """
         self.table = pd.DataFrame(
             columns=[
                 "Rank",
@@ -44,6 +54,12 @@ class nft_scraper:
         )
 
     def Web_driver(self):
+
+        """
+        Prepare selenium chrome webdriver for scraping, set appropriate zoom of window,
+         which is able to get all data of the page in two screen, initial screen and bottom screen.
+
+        """
         url = "https://opensea.io/rankings"
         options = Options()
         options.headless = False
@@ -56,9 +72,13 @@ class nft_scraper:
         return self.driver.get(url)
 
     def collect_screen_data(self):
+
+        """
+        Collect dynamic website data from current screen
+        """
         time.sleep(2)
         a = self.driver.find_elements(By.XPATH, '//*[@id="main"]/div/div[2]/div/div[2]')
-        
+
         b = [i.text for i in a][0].split("\n")
         c = [b[i * 8 : (i + 1) * 8] for i in range(int(len(b) / 8))]
 
@@ -78,6 +98,11 @@ class nft_scraper:
         return df
 
     def scrolling_down_to_bottom(self):
+        """
+        scrolling down the page to bottom
+
+        """
+
         html = self.driver.find_element_by_tag_name("html")
         html.send_keys(Keys.END)
         time.sleep(1)
@@ -115,7 +140,7 @@ if __name__ == "__main__":
         ]
     )
     driver = scraper.Web_driver()
-    
+
     for i in range(10):
         time.sleep(2)
         data = scraper.collect_screen_data()
@@ -124,5 +149,10 @@ if __name__ == "__main__":
         data = scraper.collect_screen_data()
         scraper.merging_table(scraper.table, data)
         scraper.click_to_next_page()
-    scraper.table.to_csv("/home/h1m1w1/Documents/AiCore-project/scraper_cloud/nft_ranking1.csv")
+
+    unique_ids = [uuid.uuid4() for i in range(len(scraper.table))]
+    scraper.table["uuid"] = unique_ids
+    scraper.table.to_csv(
+        "/home/h1m1w1/Documents/AiCore-project/scraper_cloud/nft_ranking1.csv"
+    )
     scraper.driver.quit()
