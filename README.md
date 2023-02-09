@@ -1,2 +1,3 @@
 # AiCore_project_1
-Cloud base bot web scrape  NFT collections data and images
+
+A web scraper collect NFT's data and images from Opensea.
